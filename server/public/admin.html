@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/static/common.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="bg-decoration" aria-hidden="true">
+      <div class="float-circle circle-a"></div>
+      <div class="float-circle circle-b"></div>
+    </div>
+
+    <main class="dashboard-wrap">
+      <header class="top-nav">
+        <div>
+          <span class="tag" id="service-tag"></span>
+          <h1 id="admin-title">管理后台</h1>
+          <div class="muted" id="admin-subtitle"></div>
+        </div>
+        <div class="inline-actions">
+          <a id="to-user-center" class="secondary-btn" style="text-decoration:none;display:inline-flex;align-items:center;" href="#">用户中心</a>
+          <button id="admin-refresh-btn" class="secondary-btn" type="button">刷新</button>
+          <button id="admin-export-btn" class="secondary-btn" type="button">导出 Excel</button>
+          <button id="admin-logout-btn" class="secondary-btn" type="button">退出后台</button>
+        </div>
+      </header>
+
+      <div id="admin-message" class="message"></div>
+
+      <section class="card" style="margin-top:16px;">
+        <h2>核心数据</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="label">用户总量</div>
+            <p class="value" id="stat-users-total">0</p>
+          </div>
+          <div class="stat-box">
+            <div class="label">有充值用户数</div>
+            <p class="value" id="stat-users-active">0</p>
+          </div>
+          <div class="stat-box">
+            <div class="label">钱包 credits 总量</div>
+            <p class="value" id="stat-total-credits">0</p>
+          </div>
+          <div class="stat-box">
+            <div class="label">充值记录总数</div>
+            <p class="value" id="stat-recharge-count">0</p>
+          </div>
+          <div class="stat-box">
+            <div class="label">充值 credits 总额</div>
+            <p class="value" id="stat-recharge-amount">0</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:16px;">
+        <h2>用户列表（服务隔离）</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>UID</th>
+                <th>用户名</th>
+                <th>角色</th>
+                <th>余额 credits</th>
+                <th>充值次数</th>
+                <th>注册时间</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:16px;">
+        <h2>充值记录（全量）</h2>
+        <div class="toolbar">
+          <input id="filter-username" type="text" placeholder="按用户名筛选" />
+          <input id="filter-card" type="text" placeholder="按卡密筛选" />
+          <input id="filter-batch" type="text" placeholder="按批次号筛选" />
+          <button id="filter-search-btn" class="secondary-btn" type="button">查询</button>
+          <button id="filter-reset-btn" class="secondary-btn" type="button">重置</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>充值时间</th>
+                <th>UID</th>
+                <th>用户名</th>
+                <th>卡密字符串</th>
+                <th>对应面值</th>
+                <th>充值 credits</th>
+                <th>售价</th>
+                <th>有效期</th>
+                <th>批次号</th>
+              </tr>
+            </thead>
+            <tbody id="recharges-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/api/runtime-config.js"></script>
+  <script src="/static/shared.js"></script>
+  <script src="/static/admin.js"></script>
+</body>
+</html>

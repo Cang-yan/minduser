@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/static/common.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="bg-decoration" aria-hidden="true">
+      <div class="float-circle circle-a"></div>
+      <div class="float-circle circle-b"></div>
+    </div>
+
+    <main class="login-wrap">
+      <section class="login-grid">
+        <aside class="brand-panel">
+          <div>
+            <div class="brand-logo" id="admin-logo" style="display:none;">MP</div>
+            <h1 class="brand-title" id="admin-brand-title">管理后台登录</h1>
+            <p class="brand-desc" id="admin-brand-desc"></p>
+            <ul class="feature-list">
+              <li><span class="feature-dot"></span><span>仅管理员可进入</span></li>
+              <li><span class="feature-dot"></span><span>查看用户量、钱包总量、充值总额</span></li>
+              <li><span class="feature-dot"></span><span>按服务隔离导出充值记录 Excel</span></li>
+            </ul>
+          </div>
+          <p class="muted">Admin scope: <span id="admin-scope"></span></p>
+        </aside>
+
+        <section class="form-panel">
+          <div class="mobile-brand">
+            <div class="mobile-brand-logo" id="mobile-admin-logo" style="display:none;">MP</div>
+            <div>
+              <strong id="mobile-admin-title">后台登录</strong>
+              <div class="muted" id="mobile-admin-subtitle"></div>
+            </div>
+          </div>
+
+          <h2 class="form-title">管理员登录</h2>
+          <p class="form-subtitle">请输入管理员账号密码。</p>
+
+          <div id="auth-message" class="message"></div>
+
+          <form id="admin-login-form">
+            <div class="form-row">
+              <label for="admin-username">管理员用户名</label>
+              <input id="admin-username" name="username" type="text" maxlength="32" autocomplete="username" required />
+            </div>
+            <div class="form-row">
+              <label for="admin-password">密码</label>
+              <input id="admin-password" name="password" type="password" maxlength="64" autocomplete="current-password" required />
+            </div>
+            <button id="admin-login-submit" class="primary-btn" type="submit">登录后台</button>
+          </form>
+
+          <div class="auth-footer">
+            <a class="link-btn" id="back-user-login" href="#">返回用户登录</a>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="/api/runtime-config.js"></script>
+  <script src="/static/shared.js"></script>
+  <script src="/static/admin-login.js"></script>
+</body>
+</html>

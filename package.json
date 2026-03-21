@@ -1,0 +1,27 @@
+{
+  "name": "minduser",
+  "version": "1.0.0",
+  "description": "Multi-service membership and auth system for MindPlus and Asloga",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "node --watch server/server.js",
+    "start": "node server/server.js"
+  },
+  "keywords": [
+    "membership",
+    "fastify",
+    "auth",
+    "credits"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/jwt": "^8.0.1",
+    "@fastify/static": "^7.0.4",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Membership Login</title>
+  <link rel="stylesheet" href="/static/common.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="bg-decoration" aria-hidden="true">
+      <div class="float-circle circle-a"></div>
+      <div class="float-circle circle-b"></div>
+      <div class="float-circle circle-c"></div>
+    </div>
+
+    <main class="login-wrap">
+      <section class="login-grid">
+        <aside class="brand-panel">
+          <div>
+            <div class="brand-logo" id="brand-logo" style="display:none;">MP</div>
+            <h1 class="brand-title" id="brand-title">MindPlus AI</h1>
+            <p class="brand-desc" id="brand-intro"></p>
+            <ul class="feature-list">
+              <li><span class="feature-dot"></span><span id="feature-1"></span></li>
+              <li><span class="feature-dot"></span><span id="feature-2"></span></li>
+              <li><span class="feature-dot"></span><span id="feature-3"></span></li>
+            </ul>
+          </div>
+          <p class="muted">Powered by LINGINE Membership Core</p>
+        </aside>
+
+        <section class="form-panel">
+          <div class="mobile-brand">
+            <div class="mobile-brand-logo" id="mobile-logo" style="display:none;">MP</div>
+            <div>
+              <strong id="mobile-title">MindPlus</strong>
+              <div class="muted" id="mobile-slogan"></div>
+            </div>
+          </div>
+
+          <div class="tab-switch">
+            <button id="tab-login" class="active" type="button">登录</button>
+            <button id="tab-register" type="button">注册</button>
+          </div>
+
+          <div id="auth-message" class="message"></div>
+
+          <form id="login-form">
+            <h2 class="form-title">欢迎回来</h2>
+            <p class="form-subtitle">请登录。</p>
+
+            <div class="form-row">
+              <label for="login-username">用户名</label>
+              <input id="login-username" name="username" type="text" maxlength="32" autocomplete="username" required />
+            </div>
+
+            <div class="form-row">
+              <label for="login-password">密码</label>
+              <input id="login-password" name="password" type="password" maxlength="64" autocomplete="current-password" required />
+            </div>
+
+            <button class="primary-btn" id="login-submit" type="submit">登录</button>
+          </form>
+
+          <form id="register-form" style="display: none;">
+            <h2 class="form-title">创建账号</h2>
+            <p class="form-subtitle"></p>
+
+            <div class="form-row">
+              <label for="register-username">用户名</label>
+              <input id="register-username" name="username" type="text" maxlength="32" autocomplete="username" required />
+            </div>
+
+            <div class="form-row">
+              <label for="register-password">密码</label>
+              <input id="register-password" name="password" type="password" maxlength="64" autocomplete="new-password" required />
+            </div>
+
+            <div class="form-row">
+              <label for="register-confirm">确认密码</label>
+              <input id="register-confirm" name="confirmPassword" type="password" maxlength="64" autocomplete="new-password" required />
+            </div>
+
+            <button class="primary-btn" id="register-submit" type="submit">注册并登录</button>
+          </form>
+
+          <div class="auth-footer">
+            <span id="service-label"></span>
+            <div class="inline-actions">
+              <span>后台入口</span>
+              <a id="admin-entry" class="link-btn" href="#">管理员登录</a>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="/api/runtime-config.js"></script>
+  <script src="/static/shared.js"></script>
+  <script src="/static/login.js"></script>
+</body>
+</html>
