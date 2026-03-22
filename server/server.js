@@ -72,6 +72,7 @@ function sendHtml(reply, fileName) {
 function buildRuntimeConfigScript() {
   const payload = {
     featureHomeMap: config.featureHome || {},
+    enabledServices: config.services || [],
   }
   return `window.__MINDUSER_RUNTIME__ = ${JSON.stringify(payload)};\n`
 }
@@ -79,7 +80,8 @@ function buildRuntimeConfigScript() {
 function ensureServiceOr404(req, reply) {
   const serviceKey = normalizeServiceKey(req.params.service)
   if (!serviceKey) {
-    reply.code(404).send(fail('服务不存在，仅支持 mindplus / asloga', 404))
+    const supported = (config.services || []).join(' / ') || 'mindplus'
+    reply.code(404).send(fail(`服务不存在，仅支持 ${supported}`, 404))
     return null
   }
   return serviceKey
@@ -107,13 +109,25 @@ fastify.get('/:service/app', async (req, reply) => {
   sendHtml(reply, 'app.html')
 })
 
-fastify.get('/:service/admin/login', async (req, reply) => {
+fastify.get('/:service/cdkey', async (req, reply) => {
+  const serviceKey = ensureServiceOr404(req, reply)
+  if (!serviceKey) return
+  sendHtml(reply, 'cdkey.html')
+})
+
+fastify.get('/:service/credits', async (req, reply) => {
+  const serviceKey = ensureServiceOr404(req, reply)
+  if (!serviceKey) return
+  sendHtml(reply, 'cdkey.html')
+})
+
+fastify.get('/adminadmin/:service/login', async (req, reply) => {
   const serviceKey = ensureServiceOr404(req, reply)
   if (!serviceKey) return
   sendHtml(reply, 'admin-login.html')
 })
 
-fastify.get('/:service/admin', async (req, reply) => {
+fastify.get('/adminadmin/:service', async (req, reply) => {
   const serviceKey = ensureServiceOr404(req, reply)
   if (!serviceKey) return
   sendHtml(reply, 'admin.html')
@@ -130,6 +144,8 @@ fastify.register(require('./routes/system'))
 fastify.register(require('./routes/auth'), { prefix: '/api' })
 fastify.register(require('./routes/wallet'), { prefix: '/api' })
 fastify.register(require('./routes/recharge'), { prefix: '/api' })
+fastify.register(require('./routes/consume'), { prefix: '/api' })
+fastify.register(require('./routes/credits'), { prefix: '/api' })
 fastify.register(require('./routes/admin'), { prefix: '/api' })
 
 fastify.setErrorHandler((err, req, reply) => {
@@ -159,12 +175,42 @@ start().catch((error) => {
   process.exit(1)
 })
 
-process.on('SIGTERM', async () => {
-  await fastify.close()
-  process.exit(0)
+let isShuttingDown = false
+
+async function shutdown(reason, exitCode = 0) {
+  if (isShuttingDown) return
+  isShuttingDown = true
+  try {
+    await fastify.close()
+  } catch (err) {
+    fastify.log.error({ err, reason }, 'Failed to close Fastify during shutdown')
+    if (exitCode === 0) exitCode = 1
+  }
+  process.exit(exitCode)
+}
+
+process.once('SIGTERM', () => {
+  shutdown('SIGTERM')
 })
 
-process.on('SIGINT', async () => {
-  await fastify.close()
-  process.exit(0)
+process.once('SIGINT', () => {
+  shutdown('SIGINT')
 })
+
+// When started via `node --watch`, the app process is a child process.
+// If user Ctrl-C exits the watcher parent first, this handler ensures child exits too.
+if (typeof process.send === 'function') {
+  process.once('disconnect', () => {
+    shutdown('parent-disconnect')
+  })
+}
+
+// Fallback: in dev watch mode, exit if process becomes orphaned.
+if (process.env.MINDUSER_DEV_WATCH === '1') {
+  const orphanGuard = setInterval(() => {
+    if (process.ppid === 1) {
+      shutdown('orphan-guard')
+    }
+  }, 2000)
+  orphanGuard.unref()
+}

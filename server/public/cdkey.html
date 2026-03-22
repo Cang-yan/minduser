@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CDKey Recharge</title>
+  <link rel="stylesheet" href="/static/common.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="bg-decoration" aria-hidden="true">
+      <div class="float-circle circle-a"></div>
+      <div class="float-circle circle-b"></div>
+    </div>
+
+    <main class="cdkey-wrap">
+      <header class="top-nav">
+        <div>
+          <span class="tag" id="service-tag"></span>
+          <h1 id="cdkey-page-title">CDKey 充值中心</h1>
+          <div class="muted" id="cdkey-page-subtitle"></div>
+        </div>
+        <div class="inline-actions">
+          <a id="back-user-center" class="secondary-btn" href="#" style="text-decoration:none;display:inline-flex;align-items:center;">返回会员中心</a>
+          <button id="logout-btn" class="secondary-btn" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <div id="page-message" class="message"></div>
+
+      <section class="cdkey-panel">
+        <header class="cdkey-panel-head">
+          <span class="tag" id="brand-tag"></span>
+          <h2>账号卡密兑换中心</h2>
+          <p class="muted">请先校验卡密（是否已使用、是否过期），校验通过后再进行兑换。</p>
+          <p class="muted">规则说明：面额 100 元可兑换 1000 credits。</p>
+        </header>
+
+        <div class="cdkey-form">
+          <div>
+            <label for="redeem-uid">兑换 UID</label>
+            <input id="redeem-uid" type="text" readonly />
+            <p class="muted" style="margin-top:8px;">此 UID 已根据当前登录账号自动填充。</p>
+          </div>
+
+          <div>
+            <label for="card-input">卡密</label>
+            <div class="card-row">
+              <input
+                id="card-input"
+                class="card-input"
+                type="text"
+                autocomplete="off"
+                placeholder="XXXX-XXXX-XXXX-XXXX"
+              />
+              <button id="validate-btn" class="secondary-btn" type="button">校验卡密</button>
+            </div>
+          </div>
+
+          <p id="validation-error" class="notice error" style="display:none;"></p>
+          <p id="validation-success" class="notice success" style="display:none;"></p>
+
+          <article id="validation-result" class="result-card" style="display:none;">
+            <h3>卡密校验结果</h3>
+            <dl class="kv">
+              <dt>卡密</dt><dd id="result-card">-</dd>
+              <dt>校验状态</dt><dd id="result-status">-</dd>
+              <dt>是否已使用</dt><dd id="result-used">-</dd>
+              <dt>是否过期</dt><dd id="result-expired">-</dd>
+              <dt>面值/规格</dt><dd id="result-face">-</dd>
+              <dt>可兑换额度</dt><dd id="result-credits">-</dd>
+              <dt>有效期</dt><dd id="result-valid-period">-</dd>
+            </dl>
+          </article>
+
+          <button id="redeem-btn" class="primary-btn cdkey-redeem-btn" type="button" disabled>确认兑换</button>
+
+          <p id="redeem-error" class="notice error" style="display:none;"></p>
+          <p id="redeem-success" class="notice success" style="display:none;"></p>
+
+          <article id="redeem-result" class="result-card" style="display:none;">
+            <h3>兑换详情</h3>
+            <dl class="kv">
+              <dt>UID</dt><dd id="redeem-result-uid">-</dd>
+              <dt>用户名</dt><dd id="redeem-result-username">-</dd>
+              <dt>卡密</dt><dd id="redeem-result-card">-</dd>
+              <dt>批次号</dt><dd id="redeem-result-batch">-</dd>
+              <dt>面值/规格</dt><dd id="redeem-result-face">-</dd>
+              <dt>兑换 credits</dt><dd id="redeem-result-credits">-</dd>
+              <dt>余额</dt><dd id="redeem-result-balance">-</dd>
+              <dt>兑换时间</dt><dd id="redeem-result-time">-</dd>
+            </dl>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/api/runtime-config.js"></script>
+  <script src="/static/shared.js"></script>
+  <script src="/static/cdkey.js"></script>
+</body>
+</html>

@@ -1,12 +1,14 @@
 'use strict'
 
+const config = require('../config')
 const { fail } = require('../db')
 const { normalizeServiceKey } = require('../service')
 
 function resolveServiceOrReply(req, reply) {
   const serviceKey = normalizeServiceKey(req.params.service)
   if (!serviceKey) {
-    reply.code(404).send(fail('服务不存在，仅支持 mindplus / asloga', 404))
+    const supported = (config.services || []).join(' / ') || 'mindplus'
+    reply.code(404).send(fail(`服务不存在，仅支持 ${supported}`, 404))
     return null
   }
   return serviceKey

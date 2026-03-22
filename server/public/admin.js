@@ -137,7 +137,7 @@
     } catch (error) {
       if (error.status === 401) {
         MU.clearAuth()
-        window.location.href = '/' + service + '/admin/login'
+        window.location.href = MU.adminLoginPath()
         return
       }
       if (error.message === '当前账号不是管理员') {
@@ -191,7 +191,7 @@
   function bindActions() {
     document.getElementById('admin-logout-btn').addEventListener('click', function () {
       MU.clearAuth()
-      window.location.href = '/' + service + '/admin/login'
+      window.location.href = MU.adminLoginPath()
     })
 
     document.getElementById('admin-refresh-btn').addEventListener('click', function () {

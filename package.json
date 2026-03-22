@@ -4,7 +4,8 @@
   "description": "Multi-service membership and auth system for MindPlus and Asloga",
   "main": "server/server.js",
   "scripts": {
-    "dev": "node --watch server/server.js",
+    "dev": "node scripts/dev-watch.js",
+    "dev:raw": "MINDUSER_DEV_WATCH=1 node --watch server/server.js",
     "start": "node server/server.js"
   },
   "keywords": [

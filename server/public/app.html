@@ -23,7 +23,7 @@
         <div class="inline-actions">
           <button id="feature-home-btn" class="secondary-btn" type="button">回到功能首页</button>
           <button id="refresh-btn" class="secondary-btn" type="button">刷新数据</button>
-          <a id="admin-link" class="secondary-btn" href="#" style="text-decoration:none;display:inline-flex;align-items:center;">管理后台</a>
+          <a id="cdkey-link" class="secondary-btn" href="#" style="text-decoration:none;display:inline-flex;align-items:center;">CDKey 充值</a>
           <button id="logout-btn" class="secondary-btn" type="button">退出登录</button>
         </div>
       </header>
@@ -36,8 +36,6 @@
           <dl class="kv" id="user-kv">
             <dt>UID</dt><dd id="user-uid">-</dd>
             <dt>用户名</dt><dd id="user-name">-</dd>
-            <dt>角色</dt><dd id="user-role">-</dd>
-            <dt>服务分区</dt><dd id="user-service">-</dd>
             <dt>注册时间</dt><dd id="user-created">-</dd>
           </dl>
         </article>
@@ -53,9 +51,17 @@
               <div class="label">累计充值次数</div>
               <p class="value" id="recharge-count">0</p>
             </div>
+            <div class="stat-box">
+              <div class="label">累计消耗 credits</div>
+              <p class="value" id="consumed-total">0</p>
+            </div>
+            <div class="stat-box">
+              <div class="label">累计消耗次数</div>
+              <p class="value" id="consumption-count">0</p>
+            </div>
           </div>
           <p class="muted" style="margin-top: 10px;">
-            说明：当前钱包代币单位为 <strong>credits</strong>。对接卡密系统后，调用预留接口即可自动入账。
+            说明：当前钱包代币单位为 <strong>credits</strong>。你可以点击上方 <strong>CDKey 充值</strong> 进入充值页面完成卡密充值。
           </p>
         </article>
       </section>
@@ -79,28 +85,19 @@
       </section>
 
       <section class="card" style="margin-top:16px;">
-        <h2>充值接口预留信息</h2>
-        <p class="muted">外部系统对接时，建议调用以下接口（当前已可用）：</p>
+        <h2>credits 消耗记录</h2>
         <div class="table-wrap">
           <table>
-            <tbody>
+            <thead>
               <tr>
-                <th style="width: 200px;">接口地址</th>
-                <td id="api-endpoint">-</td>
+                <th>消耗 credits</th>
+                <th>业务场景</th>
+                <th>来源标识</th>
+                <th>消耗后余额</th>
+                <th>消耗时间</th>
               </tr>
-              <tr>
-                <th>请求方法</th>
-                <td>POST</td>
-              </tr>
-              <tr>
-                <th>关键字段</th>
-                <td>uid、卡密字符串、对应面值、售价、有效期、批次号</td>
-              </tr>
-              <tr>
-                <th>效果</th>
-                <td>钱包 credits 入账 + 用户简版记录 + 管理后台全量记录</td>
-              </tr>
-            </tbody>
+            </thead>
+            <tbody id="consumption-tbody"></tbody>
           </table>
         </div>
       </section>

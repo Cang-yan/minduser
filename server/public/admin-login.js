@@ -55,7 +55,7 @@
       var meResp = await MU.apiRequest('/api/' + service + '/auth/me', { auth: true })
       var me = meResp.data || {}
       if (me.role === 'admin') {
-        window.location.replace('/' + service + '/admin')
+        window.location.replace(MU.adminHomePath())
         return
       }
     } catch {
@@ -93,7 +93,7 @@
       MU.setAuth(result.data)
       showMessage('success', '管理员登录成功，正在跳转...')
       setTimeout(function () {
-        window.location.href = '/' + service + '/admin'
+        window.location.href = MU.adminHomePath()
       }, 350)
     } catch (error) {
       showMessage('error', error.message || '管理员登录失败')

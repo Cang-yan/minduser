@@ -1,11 +1,45 @@
 (function () {
-  function getServiceFromPath() {
-    var seg = window.location.pathname.split('/').filter(Boolean)[0] || 'mindplus'
-    return seg === 'asloga' ? 'asloga' : 'mindplus'
+  function normalizeServiceValue(raw) {
+    return String(raw || '').trim().toLowerCase()
   }
 
-  var serviceKey = getServiceFromPath()
+  function getEnabledServices(runtimeConfig) {
+    var fromRuntime = runtimeConfig && Array.isArray(runtimeConfig.enabledServices)
+      ? runtimeConfig.enabledServices
+      : []
+
+    var out = []
+    for (var i = 0; i < fromRuntime.length; i += 1) {
+      var key = normalizeServiceValue(fromRuntime[i])
+      if (key !== 'mindplus' && key !== 'asloga') continue
+      if (out.indexOf(key) === -1) out.push(key)
+    }
+
+    return out.length > 0 ? out : ['mindplus']
+  }
+
+  function getServiceFromPath(enabledServices) {
+    var parts = window.location.pathname.split('/').filter(Boolean)
+    var defaultService = enabledServices[0] || 'mindplus'
+    var seg = normalizeServiceValue(parts[0] || defaultService)
+    if (seg === 'adminadmin') {
+      var serviceInAdminPath = normalizeServiceValue(parts[1] || '')
+      return enabledServices.indexOf(serviceInAdminPath) >= 0 ? serviceInAdminPath : defaultService
+    }
+    return enabledServices.indexOf(seg) >= 0 ? seg : defaultService
+  }
+
+  function adminLoginPath() {
+    return '/adminadmin/' + serviceKey + '/login'
+  }
+
+  function adminHomePath() {
+    return '/adminadmin/' + serviceKey
+  }
+
   var runtimeConfig = window.__MINDUSER_RUNTIME__ || {}
+  var enabledServices = getEnabledServices(runtimeConfig)
+  var serviceKey = getServiceFromPath(enabledServices)
   var defaultFeatureHomeMap = {
     mindplus: 'http://127.0.0.1:5173/slide/',
     asloga: '',
@@ -143,7 +177,7 @@
 
   function ensureAuthOrRedirect(isAdmin) {
     if (!getToken() || !getUid()) {
-      window.location.href = '/' + serviceKey + (isAdmin ? '/admin/login' : '/login')
+      window.location.href = isAdmin ? adminLoginPath() : ('/' + serviceKey + '/login')
       return false
     }
     return true
@@ -157,6 +191,7 @@
 
   window.MindUser = {
     serviceKey: serviceKey,
+    enabledServices: enabledServices,
     brand: brandMap[serviceKey],
     brandMap: brandMap,
     runtimeConfig: runtimeConfig,
@@ -172,5 +207,7 @@
     apiRequest: apiRequest,
     ensureAuthOrRedirect: ensureAuthOrRedirect,
     formatNumber: formatNumber,
+    adminLoginPath: adminLoginPath,
+    adminHomePath: adminHomePath,
   }
 })()

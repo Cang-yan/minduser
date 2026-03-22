@@ -73,9 +73,6 @@
     document.getElementById('mobile-title').textContent = brand.short
     document.getElementById('mobile-slogan').textContent = brand.slogan
     document.getElementById('service-label').textContent = '当前服务：' + brand.short
-
-    var adminEntry = document.getElementById('admin-entry')
-    adminEntry.href = '/' + service + '/admin/login'
   }
 
   function switchTab(mode) {

@@ -2,16 +2,20 @@
 
 目录：`~/LINGINE/minduser`
 
-本项目实现了双子服务会员系统：
-- `mindplus`
-- `asloga`
+本项目当前按单服务模式运行：`mindplus`。
+
+说明：
+- `asloga` 相关代码仍保留在仓库中
+- 默认不启用、不对外暴露路由
+- 如未来需要，可通过环境变量重新启用
 
 核心能力：
 - 登录/注册（用户名+密码）
 - JWT 鉴权
 - 注册后自动生成 10 位 UID 作为系统唯一标识
 - 钱包代币单位固定为 `credits`
-- 预留卡密充值接口（支持自动入账与记录）
+- CDKey 充值页面与接口（卡密校验 + 兑换入账）
+- 兼容保留开放回调充值接口（支持自动入账与记录）
 - 管理后台（用户量、充值记录、Excel 导出）
 - 服务隔离（页面隔离 + 数据隔离 + 后台隔离）
 
@@ -26,21 +30,89 @@ npm run dev
 
 默认地址：`http://127.0.0.1:3100`
 
+## 修改端口
+
+项目默认端口来自环境变量 `PORT`（默认 `3100`）。可按以下方式修改：
+
+1. 持久修改（推荐）
+
+编辑 `.env`：
+
+```bash
+PORT=3200
+```
+
+然后重启服务：
+
+```bash
+npm run dev
+# 或
+npm start
+```
+
+2. 单次临时修改（只对当前命令生效）
+
+```bash
+PORT=3200 npm run dev
+# 或
+PORT=3200 npm start
+```
+
+3. systemd 部署修改（生产常见）
+
+在 service 文件中增加或修改：
+
+```ini
+Environment=PORT=3200
+```
+
+保存后执行：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart minduser
+```
+
+如果修改端口后无法访问，请同步检查：
+- 防火墙/安全组是否放行新端口
+- 反向代理（Nginx/Caddy）上游端口是否同步更新
+
+## 服务开关
+
+通过 `.env` 的 `ENABLED_SERVICES` 控制启用的服务分区（逗号分隔）：
+
+```bash
+ENABLED_SERVICES=mindplus
+```
+
+当前默认仅启用 `mindplus`。如果后续要恢复多服务，可改为：
+
+```bash
+ENABLED_SERVICES=mindplus,asloga
+```
+
+## 文档索引
+
+- Credits 接口文档：`docs/CREDITS_API.md`
+- 部署/升级/运维手册：`docs/DEPLOY_UPGRADE_OPS.md`
+- SQLite 加密方案：`docs/SQLITE_ENCRYPTION.md`
+
 ## 页面路由
 
 用户端：
 - `/{service}/login`
 - `/{service}/app`
+- `/{service}/cdkey`（CDKey 充值）
+- `/{service}/credits`（CDKey 页面别名）
 
 后台：
-- `/{service}/admin/login`
-- `/{service}/admin`
+- `/adminadmin/{service}/login`
+- `/adminadmin/{service}`
 
-其中 `{service}` 仅支持：`mindplus` 或 `asloga`。
+其中 `{service}` 默认仅支持：`mindplus`（由 `ENABLED_SERVICES` 控制）。
 
 示例：
 - `http://127.0.0.1:3100/mindplus/login`
-- `http://127.0.0.1:3100/asloga/login`
 
 ## API（返回格式）
 
@@ -65,8 +137,20 @@ npm run dev
 
 - `GET /api/:service/wallet/summary`（Bearer Token）
 - `GET /api/:service/wallet/recharges?page=1&limit=50`（Bearer Token）
+- `GET /api/:service/wallet/consumptions?page=1&limit=50`（Bearer Token）
 
-### 预留充值接口（供卡密系统回调）
+### CDKey 充值接口（用户端）
+
+- `POST /api/:service/credits/validate`（Bearer Token）
+- `POST /api/:service/credits/redeem`（Bearer Token）
+- `GET /api/:service/credits/redemptions`（Bearer Token）
+
+说明：
+- `/validate`：校验卡密签名、批次、过期状态与是否已兑换
+- `/redeem`：完成兑换并自动写入钱包流水、用户简版记录、后台全量记录
+- `/redemptions`：查询兑换记录（普通用户仅可查看自己，管理员可按 `account`/`uid` 查看）
+
+### 开放充值回调接口（供外部系统直接入账）
 
 - `POST /api/:service/open/recharge-card`
 - `POST /api/:service/open/recharge`（别名）
@@ -100,6 +184,37 @@ npm run dev
 
 > 可选：设置 `INTERNAL_RECHARGE_KEY` 后，调用方需在 Header 带 `x-internal-key`。
 
+### 开放消耗扣减接口（供业务系统记账）
+
+- `POST /api/:service/open/consume`
+- `POST /api/:service/open/deduct`（别名）
+
+请求体示例：
+
+```json
+{
+  "uid": "A7K3M9Q2TP",
+  "amount": 35,
+  "reason": "video_render",
+  "sourceRef": "order_20260321_001"
+}
+```
+
+## 外部目录默认映射（只读）
+
+- `mindplus`（默认启用）：
+  - `~/LINGINE/minduser/cardkey`
+  - `~/LINGINE/mindplus/credits/data/redemption_records.json`
+- `asloga`（默认关闭，代码保留）：
+  - 优先 `~/LINGINE/mindvideo/*`
+  - 若不存在则回退 `~/LINGINE/mindviedo/*`
+
+可通过 `.env` 覆盖路径：
+- `MINDPLUS_CARDKEY_DIR`
+- `ASLOGA_CARDKEY_DIR`
+- `MINDPLUS_CREDITS_RECORD_FILE`
+- `ASLOGA_CREDITS_RECORD_FILE`
+
 ### 后台
 
 - `GET /api/:service/admin/dashboard`
@@ -114,7 +229,7 @@ npm run dev
 
 ## 服务隔离策略
 
-- 页面隔离：按 `/mindplus/*` 与 `/asloga/*` 独立访问
+- 页面隔离：当前默认仅开放 `/mindplus/*`
 - 数据隔离：所有核心数据表带 `service_key` 并强制过滤
 - 后台隔离：管理员只能看到当前 service 的数据
 - 本地存储隔离：token/uid 采用 `minduser_{service}_*` 命名
@@ -122,7 +237,7 @@ npm run dev
 ## 默认管理员
 
 启动时会按 `.env` 自动种子管理员：
-- `MINDPLUS_ADMIN_USERNAME` / `MINDPLUS_ADMIN_PASSWORD`
-- `ASLOGA_ADMIN_USERNAME` / `ASLOGA_ADMIN_PASSWORD`
+- `MINDPLUS_ADMIN_USERNAME` / `MINDPLUS_ADMIN_PASSWORD`（默认启用）
+- `ASLOGA_ADMIN_USERNAME` / `ASLOGA_ADMIN_PASSWORD`（仅在启用 `asloga` 时生效）
 
 生产环境请务必修改默认密码。
