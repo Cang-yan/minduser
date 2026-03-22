@@ -91,10 +91,60 @@ ENABLED_SERVICES=mindplus
 ENABLED_SERVICES=mindplus,asloga
 ```
 
+## 数据库配置（SQLite / MySQL）
+
+项目支持两种数据库后端：
+- `sqlite`：本地开发默认
+- `mysql`：生产推荐（多并发写入更稳）
+
+`.env` 关键字段：
+
+```bash
+DB_CLIENT=sqlite
+DATABASE_URL=
+DB_POOL_SIZE=10
+DB_PATH=./server/data/minduser.db
+```
+
+切换到 MySQL 示例：
+
+```bash
+DB_CLIENT=mysql
+DATABASE_URL=mysql://user:password@127.0.0.1:3306/minduser?charset=utf8mb4
+DB_POOL_SIZE=10
+```
+
+说明：
+- `DB_CLIENT=mysql` 推荐先手动执行 `sql/mysql_init.sql` 完成建表/补齐
+- `npm run db:init` 仅输出手工初始化指引，不直接改库
+- `npm run db:init:sql` 可直接查看初始化 SQL 内容
+- `npm run db:init:seed` 仅负责写入默认管理员账号
+- `DB_CLIENT=sqlite` 时，继续使用本地 `DB_PATH` 文件
+
+可单独执行初始化脚本：
+
+```bash
+# 输出手工初始化指引（含 mysql 命令示例）
+npm run db:init
+
+# 查看完整初始化 SQL
+npm run db:init:sql
+
+# 写入默认管理员（需先完成建表）
+npm run db:init:seed
+```
+
+手工执行 SQL 示例：
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
+```
+
 ## 文档索引
 
 - Credits 接口文档：`docs/CREDITS_API.md`
 - 部署/升级/运维手册：`docs/DEPLOY_UPGRADE_OPS.md`
+- MySQL 落库配置：`docs/MYSQL_SETUP.md`
 - SQLite 加密方案：`docs/SQLITE_ENCRYPTION.md`
 - 邮箱验证码配置文档：`docs/EMAIL_AUTH_SETUP.md`
 

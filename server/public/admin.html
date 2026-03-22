@@ -64,15 +64,36 @@
               <tr>
                 <th>UID</th>
                 <th>用户名</th>
+                <th>邮箱</th>
                 <th>角色</th>
+                <th>状态</th>
                 <th>余额 credits</th>
                 <th>充值次数</th>
                 <th>注册时间</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="users-tbody"></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="card" style="margin-top:16px;">
+        <h2>卡密生成</h2>
+        <form id="cardkey-generate-form">
+          <div class="toolbar cardkey-generate-grid">
+            <input id="gen-count" type="number" min="1" max="200000" value="100" placeholder="生成数量" required />
+            <input id="gen-face-value" type="text" maxlength="128" placeholder="对应面值/规格，如 100元年卡" required />
+            <input id="gen-sale-price" type="text" maxlength="32" placeholder="售价，如 79.90" required />
+            <input id="gen-valid-days" type="number" min="1" max="36500" value="365" placeholder="有效期天数" required />
+            <input id="gen-batch-no" type="text" maxlength="64" placeholder="批次号，如 B20260322A" required />
+            <input id="gen-start-date" type="date" />
+          </div>
+          <div class="inline-actions">
+            <button id="cardkey-generate-btn" class="secondary-btn" type="submit">生成并下载 CSV</button>
+            <button id="cardkey-generate-reset-btn" class="secondary-btn" type="button">重置</button>
+          </div>
+        </form>
       </section>
 
       <section class="card" style="margin-top:16px;">

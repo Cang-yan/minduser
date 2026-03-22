@@ -33,11 +33,20 @@ function parseIntSafe(raw, fallback) {
   return n
 }
 
+function parseDbClient() {
+  const explicit = String(process.env.DB_CLIENT || '').trim().toLowerCase()
+  if (explicit === 'mysql' || explicit === 'sqlite') return explicit
+  if (String(process.env.DATABASE_URL || '').trim()) return 'mysql'
+  return 'sqlite'
+}
+
 module.exports = {
   port: parseInt(process.env.PORT || '3100', 10),
   host: process.env.HOST || '0.0.0.0',
   jwtSecret: process.env.JWT_SECRET || 'change-this-secret-in-production',
   jwtExpiry: process.env.JWT_EXPIRY || '7d',
+  dbClient: parseDbClient(),
+  databaseUrl: String(process.env.DATABASE_URL || '').trim(),
   dbPath: process.env.DB_PATH || './server/data/minduser.db',
   corsOrigin: process.env.CORS_ORIGIN || '*',
   services: parseEnabledServices(process.env.ENABLED_SERVICES || 'mindplus'),

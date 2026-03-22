@@ -5,7 +5,7 @@ const path = require('path')
 const fs = require('fs')
 const Fastify = require('fastify')
 const config = require('./config')
-const { fail } = require('./db')
+const { db, fail } = require('./db')
 const { normalizeServiceKey } = require('./service')
 const { seedAdminUsers } = require('./seed')
 
@@ -51,7 +51,43 @@ fastify.decorate('authenticate', async (req, reply) => {
   try {
     await req.jwtVerify()
   } catch {
-    reply.code(401).send(fail('未登录或 token 已过期', 401))
+    return reply.code(401).send(fail('未登录或 token 已过期', 401))
+  }
+
+  const uid = String(req.user?.id || req.user?.uid || '').trim()
+  const serviceKey = String(req.user?.service_key || '').trim().toLowerCase()
+  if (!uid || !serviceKey) {
+    return reply.code(401).send(fail('登录态无效，请重新登录', 401))
+  }
+
+  try {
+    const user = await db.prepare(`
+      SELECT id, service_key, username, email, role, account_status
+      FROM users
+      WHERE id = ? AND service_key = ?
+    `).get(uid, serviceKey)
+
+    if (!user) {
+      return reply.code(401).send(fail('用户未注册，请先注册', 401))
+    }
+
+    if (String(user.account_status || 'active') === 'disabled') {
+      return reply.code(403).send(fail('账号已停用，请联系管理员', 403))
+    }
+
+    req.user = {
+      ...req.user,
+      id: user.id,
+      uid: user.id,
+      username: user.username,
+      email: user.email || '',
+      role: user.role,
+      service_key: user.service_key,
+      account_status: user.account_status || 'active',
+    }
+  } catch (error) {
+    req.log.error({ err: error, uid, serviceKey }, 'authenticate user status check failed')
+    return reply.code(500).send(fail('鉴权失败，请稍后重试', 500))
   }
 })
 
@@ -73,6 +109,7 @@ function buildRuntimeConfigScript() {
   const payload = {
     featureHomeMap: config.featureHome || {},
     enabledServices: config.services || [],
+    emailVerificationEnabled: !!(config.email && config.email.enabled),
   }
   return `window.__MINDUSER_RUNTIME__ = ${JSON.stringify(payload)};\n`
 }
@@ -165,6 +202,7 @@ fastify.setNotFoundHandler((req, reply) => {
 })
 
 async function start() {
+  await db.ready()
   await seedAdminUsers(fastify.log)
   await fastify.listen({ port: config.port, host: config.host })
   fastify.log.info(`MindUser server running at http://${config.host}:${config.port}`)

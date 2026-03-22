@@ -38,6 +38,14 @@
     pageMessage.style.display = 'none'
   }
 
+  function redirectToLoginWithMessage(text) {
+    MU.clearAuth()
+    var params = new URLSearchParams()
+    if (text) params.set('msg', text)
+    var queryText = params.toString()
+    window.location.href = '/' + service + '/login' + (queryText ? ('?' + queryText) : '')
+  }
+
   function setNotice(el, text, visible) {
     if (!el) return
     el.textContent = text || ''
@@ -165,9 +173,8 @@
         showPageMessage('success', '已自动切换为当前登录账号 UID：' + uid)
       }
     } catch (error) {
-      if (error.status === 401) {
-        MU.clearAuth()
-        window.location.href = '/' + service + '/login'
+      if (error.status === 401 || error.status === 403) {
+        redirectToLoginWithMessage(error.message || '登录状态异常，请重新登录')
         return
       }
       showPageMessage('error', error.message || '用户信息加载失败')
@@ -208,9 +215,8 @@
         setNotice(validationSuccess, '', false)
       }
     } catch (error) {
-      if (error.status === 401) {
-        MU.clearAuth()
-        window.location.href = '/' + service + '/login'
+      if (error.status === 401 || error.status === 403) {
+        redirectToLoginWithMessage(error.message || '登录状态异常，请重新登录')
         return
       }
       clearValidationState()
@@ -261,9 +267,8 @@
       setNotice(validationError, '', false)
       setNotice(validationSuccess, '', false)
     } catch (error) {
-      if (error.status === 401) {
-        MU.clearAuth()
-        window.location.href = '/' + service + '/login'
+      if (error.status === 401 || error.status === 403) {
+        redirectToLoginWithMessage(error.message || '登录状态异常，请重新登录')
         return
       }
       setNotice(redeemError, error.message || '兑换失败', true)

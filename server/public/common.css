@@ -336,6 +336,12 @@ textarea:focus {
   font-weight: 600;
 }
 
+.secondary-btn.danger-btn {
+  border-color: #fecaca;
+  background: #fff5f5;
+  color: #b91c1c;
+}
+
 .link-btn {
   background: transparent;
   color: var(--primary);
@@ -525,10 +531,59 @@ th {
   min-width: 160px;
 }
 
+.cardkey-generate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.cardkey-generate-grid input {
+  width: 100%;
+  min-width: 0;
+}
+
 .inline-actions {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.user-row-actions {
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.user-row-actions .secondary-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.status-pill.success {
+  background: #ecfdf3;
+  color: #027a48;
+  border: 1px solid #abefc6;
+}
+
+.status-pill.danger {
+  background: #fff1f3;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.pager-bar {
+  margin-top: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .cdkey-wrap {

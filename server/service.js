@@ -3,6 +3,8 @@
 const { randomInt } = require('node:crypto')
 const config = require('./config')
 
+const SHANGHAI_OFFSET_MS = 8 * 60 * 60 * 1000
+
 function normalizeServiceKey(raw) {
   const value = String(raw || '').trim().toLowerCase()
   if (!config.services.includes(value)) return null
@@ -10,14 +12,20 @@ function normalizeServiceKey(raw) {
 }
 
 function parsePage(query = {}) {
-  const page = Math.max(parseInt(query.page || '1', 10), 1)
-  const limit = Math.min(Math.max(parseInt(query.limit || '20', 10), 1), 200)
+  const pageRaw = Number.parseInt(String(query.page ?? '1'), 10)
+  const limitRaw = Number.parseInt(String(query.limit ?? '20'), 10)
+  const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1
+  const limitSafe = Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 20
+  const limit = Math.min(limitSafe, 200)
   const offset = (page - 1) * limit
   return { page, limit, offset }
 }
 
 function toIsoNow() {
-  return new Date().toISOString()
+  // Persist timestamps in Asia/Shanghai (+08:00) to align with local operations.
+  // China has no DST, so fixed offset is stable and predictable.
+  const shanghaiNow = new Date(Date.now() + SHANGHAI_OFFSET_MS)
+  return shanghaiNow.toISOString().replace('Z', '+08:00')
 }
 
 function parseCreditsAmount(faceValue) {

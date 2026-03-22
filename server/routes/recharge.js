@@ -30,7 +30,7 @@ module.exports = async function rechargeRoutes(fastify) {
     }
 
     try {
-      const data = rechargeWithPayload(serviceKey, payload)
+      const data = await rechargeWithPayload(serviceKey, payload)
       return ok(data, '充值成功')
     } catch (error) {
       const statusCode = Number(error.statusCode || 500)

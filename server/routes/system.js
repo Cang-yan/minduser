@@ -1,12 +1,13 @@
 'use strict'
 
 const config = require('../config')
+const { toIsoNow } = require('../service')
 
 module.exports = async function systemRoutes(fastify) {
   fastify.get('/health', async () => ({
     status: 'ok',
     services: config.services,
-    time: new Date().toISOString(),
+    time: toIsoNow(),
   }))
 
   fastify.get('/api/services', async () => ({

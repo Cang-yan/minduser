@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "node scripts/dev-watch.js",
     "dev:raw": "MINDUSER_DEV_WATCH=1 node --watch server/server.js",
+    "db:init": "node scripts/db-init.js",
+    "db:init:sql": "cat sql/mysql_init.sql",
+    "db:init:seed": "node scripts/db-init.js --seed-admin",
+    "db:check": "node scripts/db-check.js",
     "start": "node server/server.js"
   },
   "keywords": [
@@ -23,6 +27,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
+    "mysql2": "^3.12.0",
     "nodemailer": "^6.9.16",
     "xlsx": "^0.18.5"
   }

@@ -63,14 +63,20 @@ function normalizeConsumePayload(body = {}, overrides = {}) {
   }
 }
 
-const doConsume = db.transaction((serviceKey, payload) => {
-  const user = db.prepare(
-    'SELECT id, username, credits_balance FROM users WHERE id = ? AND service_key = ?'
+const doConsume = db.transaction(async (serviceKey, payload) => {
+  const user = await db.prepare(
+    'SELECT id, username, credits_balance, account_status FROM users WHERE id = ? AND service_key = ?'
   ).get(payload.uid, serviceKey)
 
   if (!user) {
-    const error = new Error('用户不存在')
+    const error = new Error('用户未注册，请先注册')
     error.statusCode = 404
+    throw error
+  }
+
+  if (String(user.account_status || 'active') === 'disabled') {
+    const error = new Error('账号已停用，请联系管理员')
+    error.statusCode = 403
     throw error
   }
 
@@ -91,11 +97,11 @@ const doConsume = db.transaction((serviceKey, payload) => {
   const now = toIsoNow()
   const nextBalance = balance - amount
 
-  db.prepare(
+  await db.prepare(
     'UPDATE users SET credits_balance = ?, updated_at = ? WHERE id = ? AND service_key = ?'
   ).run(nextBalance, now, user.id, serviceKey)
 
-  db.prepare(`
+  await db.prepare(`
     INSERT INTO wallet_transactions (id, service_key, user_id, change_amount, balance_after, reason, source_ref, meta_json, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
@@ -122,7 +128,7 @@ const doConsume = db.transaction((serviceKey, payload) => {
   }
 })
 
-function consumeWithPayload(serviceKey, payload) {
+async function consumeWithPayload(serviceKey, payload) {
   if (!serviceKey) {
     const error = new Error('service_key 不能为空')
     error.statusCode = 400

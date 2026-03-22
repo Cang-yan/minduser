@@ -2,6 +2,7 @@
   var MU = window.MindUser
   var service = MU.serviceKey
   var brand = MU.brand
+  var query = new URLSearchParams(window.location.search || '')
 
   var message = document.getElementById('auth-message')
 
@@ -15,6 +16,12 @@
     message.className = 'message'
     message.style.display = 'none'
     message.textContent = ''
+  }
+
+  function showRedirectMessage() {
+    var text = String(query.get('msg') || '').trim()
+    if (!text) return
+    showMessage('error', text)
   }
 
   function setButtonLoading(btn, loading, loadingText) {
@@ -103,5 +110,6 @@
   })
 
   renderBrand()
+  showRedirectMessage()
   tryAutoAdmin()
 })()

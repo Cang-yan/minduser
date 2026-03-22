@@ -26,7 +26,7 @@ module.exports = async function consumeRoutes(fastify) {
     }
 
     try {
-      const data = consumeWithPayload(serviceKey, payload)
+      const data = await consumeWithPayload(serviceKey, payload)
       return ok(data, '扣减成功')
     } catch (error) {
       const statusCode = Number(error.statusCode || 500)

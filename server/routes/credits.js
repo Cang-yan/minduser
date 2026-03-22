@@ -15,10 +15,10 @@ function getCardInput(body = {}) {
   return String(body.card || body.card_code || body.cardCode || '').trim()
 }
 
-function findUsedCardInMindUser(serviceKey, cardFormatted) {
+async function findUsedCardInMindUser(serviceKey, cardFormatted) {
   const compact = String(cardFormatted || '').replace(/-/g, '').toUpperCase()
   if (!compact) return null
-  const record = db.prepare(`
+  const record = await db.prepare(`
     SELECT user_id, username, recharged_at
     FROM admin_recharge_records
     WHERE service_key = ?
@@ -36,8 +36,8 @@ function findUsedCardInMindUser(serviceKey, cardFormatted) {
   }
 }
 
-function resolveUsedCardInfo(serviceKey, cardFormatted) {
-  const minduserUsed = findUsedCardInMindUser(serviceKey, cardFormatted)
+async function resolveUsedCardInfo(serviceKey, cardFormatted) {
+  const minduserUsed = await findUsedCardInMindUser(serviceKey, cardFormatted)
   if (minduserUsed) return minduserUsed
   return findLegacyRedemption(serviceKey, cardFormatted)
 }
@@ -80,7 +80,7 @@ module.exports = async function creditsRoutes(fastify) {
 
     try {
       const cardDetail = buildCardDetail(serviceKey, card)
-      const usedInfo = resolveUsedCardInfo(serviceKey, cardDetail.card)
+      const usedInfo = await resolveUsedCardInfo(serviceKey, cardDetail.card)
       const data = buildValidationResult(cardDetail, usedInfo)
       return ok(data, data.message)
     } catch (error) {
@@ -112,7 +112,7 @@ module.exports = async function creditsRoutes(fastify) {
 
     try {
       const cardDetail = buildCardDetail(serviceKey, card)
-      const usedInfo = resolveUsedCardInfo(serviceKey, cardDetail.card)
+      const usedInfo = await resolveUsedCardInfo(serviceKey, cardDetail.card)
       const validation = buildValidationResult(cardDetail, usedInfo)
 
       if (validation.is_used) {
@@ -161,7 +161,7 @@ module.exports = async function creditsRoutes(fastify) {
         }
       )
 
-      const recharge = rechargeWithPayload(serviceKey, payload)
+      const recharge = await rechargeWithPayload(serviceKey, payload)
       return ok(
         {
           account: recharge.uid,
@@ -215,7 +215,7 @@ module.exports = async function creditsRoutes(fastify) {
     }
 
     const whereSql = where.join(' AND ')
-    const list = db.prepare(`
+    const list = await db.prepare(`
       SELECT
         user_id,
         username,
@@ -228,14 +228,14 @@ module.exports = async function creditsRoutes(fastify) {
       FROM admin_recharge_records
       WHERE ${whereSql}
       ORDER BY recharged_at DESC
-      LIMIT ? OFFSET ?
-    `).all(...params, limit, offset)
+      LIMIT ${limit} OFFSET ${offset}
+    `).all(...params)
 
-    const total = db.prepare(`
+    const total = (await db.prepare(`
       SELECT COUNT(*) AS c
       FROM admin_recharge_records
       WHERE ${whereSql}
-    `).get(...params)?.c || 0
+    `).get(...params))?.c || 0
 
     const mapped = list.map((item) => {
       const payload = parsePayloadJson(item.payload_json)

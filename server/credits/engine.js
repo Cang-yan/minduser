@@ -433,4 +433,5 @@ module.exports = {
   buildCardDetail,
   findLegacyRedemption,
   buildValidationResult,
+  resolveCardkeyDir,
 }
