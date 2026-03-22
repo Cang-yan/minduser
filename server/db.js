@@ -22,6 +22,8 @@ sqlite.exec(`
     id                TEXT PRIMARY KEY,
     service_key       TEXT NOT NULL,
     username          TEXT NOT NULL,
+    email             TEXT,
+    email_verified_at TEXT,
     password_hash     TEXT NOT NULL,
     role              TEXT NOT NULL DEFAULT 'user',
     credits_balance   REAL NOT NULL DEFAULT 0,
@@ -69,11 +71,41 @@ sqlite.exec(`
     UNIQUE(service_key, card_code)
   );
 
+  CREATE TABLE IF NOT EXISTS email_verification_codes (
+    id                TEXT PRIMARY KEY,
+    service_key       TEXT NOT NULL,
+    email             TEXT NOT NULL,
+    purpose           TEXT NOT NULL,
+    code_hash         TEXT NOT NULL,
+    expires_at        TEXT NOT NULL,
+    used_at           TEXT,
+    created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE INDEX IF NOT EXISTS idx_users_service ON users(service_key);
   CREATE INDEX IF NOT EXISTS idx_wallet_user ON wallet_transactions(service_key, user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_user_recharge_user ON user_recharge_records(service_key, user_id, recharged_at DESC);
   CREATE INDEX IF NOT EXISTS idx_admin_recharge_service ON admin_recharge_records(service_key, recharged_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_email_codes_lookup
+    ON email_verification_codes(service_key, email, purpose, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_email_codes_expire
+    ON email_verification_codes(expires_at);
 `)
+
+ensureUsersColumns()
+sqlite.exec('CREATE UNIQUE INDEX IF NOT EXISTS uq_users_service_email ON users(service_key, email) WHERE email IS NOT NULL')
+
+function ensureUsersColumns() {
+  const rows = sqlite.prepare('PRAGMA table_info(users)').all()
+  const columns = new Set(rows.map((item) => item.name))
+
+  if (!columns.has('email')) {
+    sqlite.exec('ALTER TABLE users ADD COLUMN email TEXT')
+  }
+  if (!columns.has('email_verified_at')) {
+    sqlite.exec('ALTER TABLE users ADD COLUMN email_verified_at TEXT')
+  }
+}
 
 const db = {
   prepare(sql) {

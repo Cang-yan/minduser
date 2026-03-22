@@ -48,6 +48,23 @@ function sanitizePassword(raw) {
   return value
 }
 
+function sanitizeEmail(raw) {
+  const value = String(raw || '').trim().toLowerCase()
+  if (!value) return null
+  if (value.length > 254) return null
+  // Practical email validation for registration/login.
+  if (!/^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(value)) {
+    return null
+  }
+  return value
+}
+
+function sanitizeEmailCode(raw) {
+  const value = String(raw || '').trim()
+  if (!/^\d{6}$/.test(value)) return null
+  return value
+}
+
 const UID_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 function generateShortUid(length = 10) {
@@ -66,5 +83,7 @@ module.exports = {
   parseCreditsAmount,
   sanitizeUsername,
   sanitizePassword,
+  sanitizeEmail,
+  sanitizeEmailCode,
   generateShortUid,
 }

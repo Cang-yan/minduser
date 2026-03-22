@@ -135,6 +135,7 @@
     window.localStorage.setItem(storageKey('jwt_token'), payload.token)
     window.localStorage.setItem(storageKey('uid'), user.id || user.uid || '')
     window.localStorage.setItem(storageKey('username'), user.username || '')
+    window.localStorage.setItem(storageKey('email'), user.email || '')
     window.localStorage.setItem(storageKey('role'), user.role || 'user')
   }
 
@@ -142,6 +143,7 @@
     window.localStorage.removeItem(storageKey('jwt_token'))
     window.localStorage.removeItem(storageKey('uid'))
     window.localStorage.removeItem(storageKey('username'))
+    window.localStorage.removeItem(storageKey('email'))
     window.localStorage.removeItem(storageKey('role'))
   }
 

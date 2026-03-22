@@ -23,6 +23,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
+    "nodemailer": "^6.9.16",
     "xlsx": "^0.18.5"
   }
 }

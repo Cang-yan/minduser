@@ -11,6 +11,12 @@
   var registerForm = document.getElementById('register-form')
   var msg = document.getElementById('auth-message')
 
+  var sendCodeBtn = document.getElementById('send-email-code')
+  var registerEmailInput = document.getElementById('register-email')
+
+  var codeCooldownTimer = null
+  var codeCooldownLeft = 0
+
   function parseRedirectTarget() {
     var raw = String(query.get('redirect') || '').trim()
     if (!raw) return null
@@ -62,13 +68,8 @@
     var desktopLogo = document.getElementById('brand-logo')
     var mobileLogo = document.getElementById('mobile-logo')
 
-    // Hide logo for all services.
-    if (desktopLogo) {
-      desktopLogo.style.display = 'none'
-    }
-    if (mobileLogo) {
-      mobileLogo.style.display = 'none'
-    }
+    if (desktopLogo) desktopLogo.style.display = 'none'
+    if (mobileLogo) mobileLogo.style.display = 'none'
 
     document.getElementById('mobile-title').textContent = brand.short
     document.getElementById('mobile-slogan').textContent = brand.slogan
@@ -113,6 +114,49 @@
     return /^[A-Za-z0-9_\-.]{3,32}$/.test(name)
   }
 
+  function validEmail(email) {
+    return /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(email)
+  }
+
+  function validAccount(account) {
+    return validUsername(account) || validEmail(account)
+  }
+
+  function validEmailCode(code) {
+    return /^\d{6}$/.test(code)
+  }
+
+  function updateSendCodeButton() {
+    if (!sendCodeBtn) return
+    if (codeCooldownLeft > 0) {
+      sendCodeBtn.disabled = true
+      sendCodeBtn.textContent = codeCooldownLeft + 's 后重试'
+      return
+    }
+    sendCodeBtn.disabled = false
+    sendCodeBtn.textContent = '发送验证码'
+  }
+
+  function startSendCodeCooldown(seconds) {
+    codeCooldownLeft = Math.max(Number(seconds) || 0, 0)
+    if (codeCooldownTimer) {
+      window.clearInterval(codeCooldownTimer)
+      codeCooldownTimer = null
+    }
+    updateSendCodeButton()
+    if (codeCooldownLeft <= 0) return
+
+    codeCooldownTimer = window.setInterval(function () {
+      codeCooldownLeft -= 1
+      if (codeCooldownLeft <= 0) {
+        codeCooldownLeft = 0
+        window.clearInterval(codeCooldownTimer)
+        codeCooldownTimer = null
+      }
+      updateSendCodeButton()
+    }, 1000)
+  }
+
   async function tryAutoLogin() {
     if (forceLogout) {
       MU.clearAuth()
@@ -143,15 +187,48 @@
     switchTab('register')
   })
 
+  if (sendCodeBtn && registerEmailInput) {
+    sendCodeBtn.addEventListener('click', async function () {
+      hideMessage()
+      if (codeCooldownLeft > 0) return
+
+      var email = String(registerEmailInput.value || '').trim().toLowerCase()
+      if (!validEmail(email)) {
+        showMessage('error', '请输入正确的邮箱地址')
+        registerEmailInput.focus()
+        return
+      }
+
+      setButtonLoading(sendCodeBtn, true, '发送中...')
+      try {
+        var result = await MU.apiRequest('/api/' + service + '/auth/send-register-code', {
+          method: 'POST',
+          body: { email: email },
+        })
+        var retrySeconds = result && result.data ? Number(result.data.retry_after_seconds || 0) : 0
+        startSendCodeCooldown(retrySeconds || 60)
+        showMessage('success', '验证码已发送，请查收邮箱')
+      } catch (error) {
+        showMessage('error', error.message || '验证码发送失败')
+      } finally {
+        if (codeCooldownLeft <= 0) {
+          setButtonLoading(sendCodeBtn, false, '')
+        } else {
+          updateSendCodeButton()
+        }
+      }
+    })
+  }
+
   loginForm.addEventListener('submit', async function (event) {
     event.preventDefault()
     hideMessage()
 
-    var username = String(document.getElementById('login-username').value || '').trim()
+    var account = String(document.getElementById('login-account').value || '').trim()
     var password = String(document.getElementById('login-password').value || '')
 
-    if (!validUsername(username)) {
-      showMessage('error', '用户名仅支持字母/数字/_/.-，长度 3-32 位')
+    if (!validAccount(account)) {
+      showMessage('error', '请输入合法的用户名或邮箱')
       return
     }
     if (password.length < 6) {
@@ -165,7 +242,7 @@
       var result = await MU.apiRequest('/api/' + service + '/auth/login', {
         method: 'POST',
         body: {
-          username: username,
+          account: account,
           password: password,
         },
       })
@@ -186,11 +263,21 @@
     hideMessage()
 
     var username = String(document.getElementById('register-username').value || '').trim()
+    var email = String(document.getElementById('register-email').value || '').trim().toLowerCase()
+    var emailCode = String(document.getElementById('register-email-code').value || '').trim()
     var password = String(document.getElementById('register-password').value || '')
     var confirmPassword = String(document.getElementById('register-confirm').value || '')
 
     if (!validUsername(username)) {
       showMessage('error', '用户名仅支持字母/数字/_/.-，长度 3-32 位')
+      return
+    }
+    if (!validEmail(email)) {
+      showMessage('error', '请输入正确的邮箱地址')
+      return
+    }
+    if (!validEmailCode(emailCode)) {
+      showMessage('error', '请输入 6 位数字邮箱验证码')
       return
     }
     if (password.length < 6) {
@@ -209,6 +296,8 @@
         method: 'POST',
         body: {
           username: username,
+          email: email,
+          emailCode: emailCode,
           password: password,
         },
       })
@@ -225,5 +314,6 @@
   })
 
   setBrandText()
+  updateSendCodeButton()
   tryAutoLogin()
 })()

@@ -48,11 +48,11 @@
 
           <form id="login-form">
             <h2 class="form-title">欢迎回来</h2>
-            <p class="form-subtitle">请登录。</p>
+            <p class="form-subtitle">请使用用户名或邮箱登录。</p>
 
             <div class="form-row">
-              <label for="login-username">用户名</label>
-              <input id="login-username" name="username" type="text" maxlength="32" autocomplete="username" required />
+              <label for="login-account">用户名 / 邮箱</label>
+              <input id="login-account" name="account" type="text" maxlength="254" autocomplete="username" required />
             </div>
 
             <div class="form-row">
@@ -65,11 +65,25 @@
 
           <form id="register-form" style="display: none;">
             <h2 class="form-title">创建账号</h2>
-            <p class="form-subtitle"></p>
+            <p class="form-subtitle">注册时需完成邮箱验证码校验。</p>
 
             <div class="form-row">
               <label for="register-username">用户名</label>
               <input id="register-username" name="username" type="text" maxlength="32" autocomplete="username" required />
+            </div>
+
+            <div class="form-row">
+              <label for="register-email">邮箱</label>
+              <input id="register-email" name="email" type="email" maxlength="254" autocomplete="email" required />
+            </div>
+
+            <div class="form-row">
+              <label for="register-email-code">邮箱验证码</label>
+              <div class="inline-row">
+                <input id="register-email-code" name="emailCode" type="text" inputmode="numeric" maxlength="6" placeholder="6位数字验证码" required />
+                <button class="secondary-btn code-btn" id="send-email-code" type="button">发送验证码</button>
+              </div>
+              <p class="form-hint">验证码默认 10 分钟有效。</p>
             </div>
 
             <div class="form-row">

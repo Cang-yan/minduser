@@ -96,6 +96,7 @@ ENABLED_SERVICES=mindplus,asloga
 - Credits 接口文档：`docs/CREDITS_API.md`
 - 部署/升级/运维手册：`docs/DEPLOY_UPGRADE_OPS.md`
 - SQLite 加密方案：`docs/SQLITE_ENCRYPTION.md`
+- 邮箱验证码配置文档：`docs/EMAIL_AUTH_SETUP.md`
 
 ## 页面路由
 
@@ -128,10 +129,16 @@ ENABLED_SERVICES=mindplus,asloga
 
 ### 认证
 
+- `POST /api/:service/auth/send-register-code`
 - `POST /api/:service/auth/register`
 - `POST /api/:service/auth/login`
 - `POST /api/:service/auth/admin-login`
 - `GET /api/:service/auth/me`（Bearer Token）
+
+说明：
+- `send-register-code`：发送注册邮箱验证码（6位数字）
+- `register`：除用户名/密码外，需提交 `email` 与 `emailCode`
+- `login`：支持 `account` 字段（用户名或邮箱）
 
 ### 钱包
 
