@@ -108,6 +108,8 @@ DB_POOL_SIZE=10
 - `npm run db:init` 仅输出手工初始化指引，不直接改库
 - `npm run db:init:sql` 可直接查看初始化 SQL 内容
 - `npm run db:init:seed` 仅负责写入默认管理员账号
+- `DB_CLIENT` 非 `mysql` 时服务会启动失败
+- `DATABASE_URL` 为空时服务会启动失败
 
 可单独执行初始化脚本：
 
@@ -120,6 +122,9 @@ npm run db:init:sql
 
 # 写入默认管理员（需先完成建表）
 npm run db:init:seed
+
+# 启动后检查当前数据库模式与表状态
+npm run db:check
 ```
 
 手工执行 SQL 示例：
@@ -134,7 +139,7 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
 - 部署/升级/运维手册：`docs/DEPLOY_UPGRADE_OPS.md`
 - GitHub 更新部署手册：`docs/GITHUB_DEPLOY_RUNBOOK.md`
 - MySQL 落库配置：`docs/MYSQL_SETUP.md`
-- 邮箱验证码配置文档：`docs/EMAIL_AUTH_SETUP.md`
+- 邮箱登录与注册说明：`docs/EMAIL_AUTH_SETUP.md`
 
 ## 页面路由
 
@@ -155,7 +160,7 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
 
 ## API（返回格式）
 
-统一返回：
+业务 API 统一返回：
 
 ```json
 {
@@ -164,6 +169,9 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
   "message": "success"
 }
 ```
+
+说明：
+- `GET /health` 为健康检查特例，返回 `{ status, services, time }`
 
 ### 认证
 
@@ -262,8 +270,11 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
 
 ### 后台
 
+- `POST /api/:service/admin/cardkeys/generate`（生成并下载 CSV）
 - `GET /api/:service/admin/dashboard`
 - `GET /api/:service/admin/users?page=1&limit=100`
+- `PATCH /api/:service/admin/users/:uid/status`（停用/启用用户）
+- `DELETE /api/:service/admin/users/:uid`（删除用户）
 - `GET /api/:service/admin/recharges?page=1&limit=100`
 - `GET /api/:service/admin/recharges/export`（Excel 导出）
 

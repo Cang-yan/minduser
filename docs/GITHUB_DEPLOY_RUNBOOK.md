@@ -45,6 +45,7 @@ npm ci
 ```bash
 cd /home/xx/LINGINE/minduser
 mysql -h 127.0.0.1 -P 3306 -u <user> -p < sql/mysql_init.sql
+#注入管理员用户
 npm run db:init:seed
 npm run db:check
 ```
