@@ -2,7 +2,6 @@
   var MU = window.MindUser
   var service = MU.serviceKey
   var brand = MU.brand
-  var query = new URLSearchParams(window.location.search || '')
 
   var pageMessage = document.getElementById('page-message')
   var uidInput = document.getElementById('redeem-uid')
@@ -165,13 +164,7 @@
       state.me = me
       var uid = me.uid || me.id || MU.getUid() || ''
       uidInput.value = uid
-      document.getElementById('back-user-center').href =
-        '/' + service + '/app' + (uid ? ('?uid=' + encodeURIComponent(uid)) : '')
-
-      var queryUid = String(query.get('uid') || '').trim()
-      if (queryUid && queryUid !== uid) {
-        showPageMessage('success', '已自动切换为当前登录账号 UID：' + uid)
-      }
+      document.getElementById('back-user-center').href = '/' + service + '/app'
     } catch (error) {
       if (error.status === 401 || error.status === 403) {
         redirectToLoginWithMessage(error.message || '登录状态异常，请重新登录')

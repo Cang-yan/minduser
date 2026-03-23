@@ -1,6 +1,13 @@
 -- MindUser MySQL initialization script
 -- Usage example:
 --   mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
+-- If you run without selecting a DB, this script will auto create/use `minduser`.
+-- If your DB name is different, edit the two lines below.
+
+CREATE DATABASE IF NOT EXISTS minduser
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE minduser;
 
 SET NAMES utf8mb4;
 SET time_zone = '+08:00';

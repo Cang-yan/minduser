@@ -10,7 +10,7 @@
 - 如未来需要，可通过环境变量重新启用
 
 核心能力：
-- 登录/注册（用户名+密码）
+- 登录/注册（注册需邮箱，登录支持用户名或邮箱）
 - JWT 鉴权
 - 注册后自动生成 10 位 UID 作为系统唯一标识
 - 钱包代币单位固定为 `credits`
@@ -91,22 +91,11 @@ ENABLED_SERVICES=mindplus
 ENABLED_SERVICES=mindplus,asloga
 ```
 
-## 数据库配置（SQLite / MySQL）
+## 数据库配置（MySQL）
 
-项目支持两种数据库后端：
-- `sqlite`：本地开发默认
-- `mysql`：生产推荐（多并发写入更稳）
+项目当前仅支持 `mysql`。
 
 `.env` 关键字段：
-
-```bash
-DB_CLIENT=sqlite
-DATABASE_URL=
-DB_POOL_SIZE=10
-DB_PATH=./server/data/minduser.db
-```
-
-切换到 MySQL 示例：
 
 ```bash
 DB_CLIENT=mysql
@@ -115,11 +104,10 @@ DB_POOL_SIZE=10
 ```
 
 说明：
-- `DB_CLIENT=mysql` 推荐先手动执行 `sql/mysql_init.sql` 完成建表/补齐
+- 推荐先手动执行 `sql/mysql_init.sql` 完成建表/补齐
 - `npm run db:init` 仅输出手工初始化指引，不直接改库
 - `npm run db:init:sql` 可直接查看初始化 SQL 内容
 - `npm run db:init:seed` 仅负责写入默认管理员账号
-- `DB_CLIENT=sqlite` 时，继续使用本地 `DB_PATH` 文件
 
 可单独执行初始化脚本：
 
@@ -144,8 +132,8 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
 
 - Credits 接口文档：`docs/CREDITS_API.md`
 - 部署/升级/运维手册：`docs/DEPLOY_UPGRADE_OPS.md`
+- GitHub 更新部署手册：`docs/GITHUB_DEPLOY_RUNBOOK.md`
 - MySQL 落库配置：`docs/MYSQL_SETUP.md`
-- SQLite 加密方案：`docs/SQLITE_ENCRYPTION.md`
 - 邮箱验证码配置文档：`docs/EMAIL_AUTH_SETUP.md`
 
 ## 页面路由
@@ -186,8 +174,8 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
 - `GET /api/:service/auth/me`（Bearer Token）
 
 说明：
-- `send-register-code`：发送注册邮箱验证码（6位数字）
-- `register`：除用户名/密码外，需提交 `email` 与 `emailCode`
+- `send-register-code`：已废弃，接口固定返回 410（当前改为邮箱直注册）
+- `register`：需提交 `username`、`password`、`email`
 - `login`：支持 `account` 字段（用户名或邮箱）
 
 ### 钱包

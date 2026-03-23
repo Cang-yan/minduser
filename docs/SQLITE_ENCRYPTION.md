@@ -1,5 +1,7 @@
 # MindUser SQLite 加密方案
 
+> 说明：`minduser` 已于 2026-03-23 切换为 MySQL-only，本文件仅作历史归档参考，不再作为当前部署方案。
+
 适用项目：`~/LINGINE/minduser`  
 文档版本：`v1`  
 更新时间：`2026-03-22`
@@ -189,4 +191,3 @@ PRAGMA rekey = 'NewStrongDBKey';
 ---
 
 如果你希望，我可以下一步直接给你一版“可落地到当前代码”的 SQLCipher 改造补丁清单（含依赖、`db.js` 改造示例、迁移脚本模板和回滚脚本模板）。
-

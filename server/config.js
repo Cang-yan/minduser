@@ -35,9 +35,9 @@ function parseIntSafe(raw, fallback) {
 
 function parseDbClient() {
   const explicit = String(process.env.DB_CLIENT || '').trim().toLowerCase()
-  if (explicit === 'mysql' || explicit === 'sqlite') return explicit
-  if (String(process.env.DATABASE_URL || '').trim()) return 'mysql'
-  return 'sqlite'
+  if (!explicit) return 'mysql'
+  if (explicit === 'mysql') return 'mysql'
+  throw new Error(`不支持的 DB_CLIENT: ${explicit}，当前仅支持 mysql`)
 }
 
 module.exports = {
@@ -47,7 +47,6 @@ module.exports = {
   jwtExpiry: process.env.JWT_EXPIRY || '7d',
   dbClient: parseDbClient(),
   databaseUrl: String(process.env.DATABASE_URL || '').trim(),
-  dbPath: process.env.DB_PATH || './server/data/minduser.db',
   corsOrigin: process.env.CORS_ORIGIN || '*',
   services: parseEnabledServices(process.env.ENABLED_SERVICES || 'mindplus'),
   internalRechargeKey: process.env.INTERNAL_RECHARGE_KEY || '',

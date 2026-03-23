@@ -6,32 +6,22 @@ const config = require('../server/config')
 const { db } = require('../server/db')
 
 async function getDbInfo() {
-  if (config.dbClient === 'mysql') {
-    const current = await db.prepare('SELECT DATABASE() AS db_name').get()
-    const tables = await db.prepare(`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = DATABASE()
-      ORDER BY table_name
-    `).all()
-    return {
-      mode: 'mysql',
-      database: current && current.db_name ? current.db_name : '(unknown)',
-      tables: (tables || []).map((r) => r.table_name),
-    }
+  if (config.dbClient !== 'mysql') {
+    throw new Error(`DB_CLIENT=${config.dbClient} 非法，当前仅支持 mysql`)
   }
 
+  const current = await db.prepare('SELECT DATABASE() AS db_name').get()
   const tables = await db.prepare(`
-    SELECT name
-    FROM sqlite_master
-    WHERE type = 'table'
-    ORDER BY name
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = DATABASE()
+    ORDER BY table_name
   `).all()
 
   return {
-    mode: 'sqlite',
-    database: process.env.DB_PATH || './server/data/minduser.db',
-    tables: (tables || []).map((r) => r.name),
+    mode: 'mysql',
+    database: current && current.db_name ? current.db_name : '(unknown)',
+    tables: (tables || []).map((r) => r.table_name),
   }
 }
 

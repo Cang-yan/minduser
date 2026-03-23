@@ -51,6 +51,25 @@ function createHttpError(message, statusCode = 400) {
   return error
 }
 
+function isMysqlDuplicateError(error) {
+  return Boolean(
+    error &&
+    (error.code === 'ER_DUP_ENTRY' || Number(error.errno) === 1062)
+  )
+}
+
+function mapRegisterDbError(error) {
+  if (!isMysqlDuplicateError(error)) return null
+  const raw = String(error.sqlMessage || error.message || '')
+  if (raw.includes('uq_users_service_email')) {
+    return createHttpError('该邮箱已被注册')
+  }
+  if (raw.includes('uq_users_service_username')) {
+    return createHttpError('该用户名已被注册')
+  }
+  return createHttpError('该用户名或邮箱已被注册')
+}
+
 function isUserDisabled(user) {
   return String(user?.account_status || 'active') === 'disabled'
 }
@@ -205,6 +224,10 @@ module.exports = async function authRoutes(fastify) {
     } catch (error) {
       if (error && error.statusCode) {
         return reply.code(error.statusCode).send(fail(error.message, error.statusCode))
+      }
+      const mappedError = mapRegisterDbError(error)
+      if (mappedError) {
+        return reply.code(mappedError.statusCode).send(fail(mappedError.message, mappedError.statusCode))
       }
       req.log.error({ err: error }, 'Register failed')
       return reply.code(500).send(fail('注册失败，请稍后重试', 500))

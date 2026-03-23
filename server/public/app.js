@@ -57,8 +57,7 @@
     document.getElementById('user-email').textContent = me.email || '-'
     document.getElementById('user-created').textContent = me.created_at || '-'
     if (cdkeyLink) {
-      var uid = me.uid || me.id || MU.getUid() || ''
-      cdkeyLink.href = '/' + service + '/cdkey' + (uid ? ('?uid=' + encodeURIComponent(uid)) : '')
+      cdkeyLink.href = '/' + service + '/cdkey'
     }
   }
 

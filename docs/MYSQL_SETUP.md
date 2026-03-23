@@ -2,7 +2,7 @@
 
 ## 目标
 
-将 `minduser` 的实际数据存储从 SQLite 切换为 MySQL，以提升并发写入场景下的稳定性。
+将 `minduser` 固定为 MySQL 存储，以提升并发写入场景下的稳定性。
 
 ## 一、安装依赖
 
@@ -32,16 +32,9 @@ DB_POOL_SIZE=10
 ```
 
 字段说明：
-- `DB_CLIENT`：数据库后端，`mysql` 或 `sqlite`
+- `DB_CLIENT`：数据库后端，当前仅支持 `mysql`
 - `DATABASE_URL`：MySQL 连接串
 - `DB_POOL_SIZE`：连接池大小（默认 10）
-
-SQLite 回退配置：
-
-```env
-DB_CLIENT=sqlite
-DB_PATH=./server/data/minduser.db
-```
 
 ## 四、手动初始化表结构（推荐）
 
@@ -94,8 +87,7 @@ node -e "const {db}=require('./server/db'); db.ready().then((r)=>console.log(r.m
 
 - 数据库实现已按文件拆分：
   - `server/db/mysql.js`
-  - `server/db/sqlite.js`
-  - `server/db.js` 仅做分发
-- 邮箱验证码、用户、钱包、充值、后台记录都走同一个主库（即当前 `DB_CLIENT` 指向的库）。
-- 如果 `DB_CLIENT=mysql` 但 `DATABASE_URL` 为空，服务会启动失败并给出明确错误。
-- 如果你只在低并发场景使用，`sqlite` 仍然可用；生产高并发推荐 `mysql`。
+  - `server/db.js` 固定加载 MySQL 适配器
+- 邮箱验证码、用户、钱包、充值、后台记录都走同一个主库。
+- 如果 `DB_CLIENT` 不是 `mysql`，服务会启动失败并给出明确错误。
+- 如果 `DATABASE_URL` 为空，服务会启动失败并给出明确错误。
