@@ -135,11 +135,8 @@ mysql -h 127.0.0.1 -P 3306 -u <user> -p <database> < sql/mysql_init.sql
 
 ## 文档索引
 
-- Credits 接口文档：`docs/CREDITS_API.md`
-- 部署/升级/运维手册：`docs/DEPLOY_UPGRADE_OPS.md`
 - GitHub 更新部署手册：`docs/GITHUB_DEPLOY_RUNBOOK.md`
-- MySQL 落库配置：`docs/MYSQL_SETUP.md`
-- 邮箱登录与注册说明：`docs/EMAIL_AUTH_SETUP.md`
+
 
 ## 页面路由
 
